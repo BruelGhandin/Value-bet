@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#15212b">
+<meta name="color-scheme" content="light dark">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Value Bet · prédictions de football</title>
+<style>
+:root{
+  --ink:#15212b; --ink-2:#2a3a47; --muted:#66727c; --chalk:#f4f5f1; --paper:#ffffff; --line:#dcdfd8; --line-2:#eceee8;
+  --turf:#2b6a4d; --turf-deep:#1e4f39; --turf-soft:#dcebe1; --slate:#3f5a70; --card-yellow:#d9a400; --yellow-soft:#fbf1cc;
+  --card-red:#b83a2e; --red-soft:#f6dcd8; --focus:#1c6fd1;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --sans:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{--ink:#e8ece8;--ink-2:#c5cdc8;--muted:#93a09a;--chalk:#101a16;--paper:#16231d;--line:#2a3b33;--line-2:#223029;
+        --turf-soft:#1f3a2d;--yellow-soft:#3b3410;--red-soft:#43211d;--slate:#6b8aa3}
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font:15px/1.5 var(--sans);color:var(--ink);background:var(--chalk);display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+h1,h2,h3{font-family:var(--serif);font-weight:600;margin:0;letter-spacing:-.01em}
+h1{font-size:30px;line-height:1.15}
+h2{font-size:20px;margin-bottom:12px}
+h3{font-size:16px}
+p{margin:0 0 10px}
+.muted{color:var(--muted)}
+.sr{position:absolute;left:-9999px}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+/* navigation */
+.side{background:#15212b;color:#e8ece8;padding:26px 16px 20px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
+.brand{font-family:var(--serif);font-size:22px;padding:0 10px 18px;display:flex;align-items:center;gap:10px}
+.brand svg{flex:none}
+.side nav{display:flex;flex-direction:column;gap:2px}
+.side a{color:#b9c4bd;text-decoration:none;padding:9px 12px;border-radius:8px;display:flex;align-items:center;gap:11px;font-size:14.5px}
+.side a:hover{background:#1f2f3b;color:#fff}
+.side a[aria-current=page]{background:var(--turf);color:#fff}
+.side svg{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.side .foot{margin-top:auto;font-size:12.5px;color:#93a09a;padding:12px 10px 0;border-top:1px solid #26363f;line-height:1.45}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--card-yellow);margin-right:6px}
+.dot.on{background:#4fb07f}
+
+main{padding:34px clamp(18px,4vw,52px) 60px;max-width:1180px;width:100%}
+.page{display:none}.page.on{display:block}
+.head{margin-bottom:26px}
+.head p{color:var(--muted);margin-top:6px;max-width:64ch}
+
+/* sections sans cartes : filets */
+.block{border-top:1px solid var(--line);padding:22px 0 8px;margin-top:10px}
+.block:first-of-type{border-top:0;padding-top:0}
+.figures{display:flex;flex-wrap:wrap;gap:0;margin:0 0 8px}
+.fig{padding:2px 28px 2px 0;margin-right:28px;border-right:1px solid var(--line)}
+.fig:last-child{border-right:0}
+.fig b{display:block;font:600 30px/1.1 var(--serif);font-variant-numeric:tabular-nums}
+.fig span{color:var(--muted);font-size:13px}
+
+/* tableaux */
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-weight:600;text-align:left;color:var(--muted);font-size:13px;padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:9px 10px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:0}
+.bar{height:8px;border-radius:4px;background:var(--turf);min-width:2px}
+.bar.neg{background:var(--card-red)}
+.bar.mid{background:var(--slate)}
+.track{background:var(--line-2);border-radius:4px;width:100%;height:8px;position:relative}
+.pos{color:var(--turf-deep)}.neg-t{color:var(--card-red)}
+@media (prefers-color-scheme:dark){.pos{color:#7fd0a4}.neg-t{color:#f09186}}
+
+/* formulaires */
+label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%}
+input:hover,select:hover{border-color:#b8bfb5}
+.grid{display:grid;gap:14px 16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.btn{font:inherit;font-weight:600;border-radius:8px;border:1px solid var(--turf);background:var(--turf);color:#fff;padding:9px 16px;cursor:pointer}
+.btn:hover{background:var(--turf-deep)}
+.btn:disabled{opacity:.55;cursor:wait}
+.btn.ghost{background:transparent;color:var(--turf-deep);border-color:var(--line)}
+.btn.ghost:hover{background:var(--turf-soft)}
+@media (prefers-color-scheme:dark){.btn.ghost{color:#9bd9b8}}
+.btn.sm{padding:5px 10px;font-size:13px}
+.btn.danger{background:transparent;color:var(--card-red);border-color:var(--line)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.badge{display:inline-block;font-size:12.5px;padding:2px 9px;border-radius:99px;background:var(--line-2);color:var(--ink-2)}
+.badge.good{background:var(--turf-soft);color:var(--turf-deep)}
+.badge.warn{background:var(--yellow-soft);color:#7a5c00}
+.badge.bad{background:var(--red-soft);color:var(--card-red)}
+@media (prefers-color-scheme:dark){.badge.good{color:#9bd9b8}.badge.warn{color:#e8c64f}.badge.bad{color:#f09186}}
+
+/* avis (carton) */
+.note{border-left:4px solid var(--card-yellow);background:var(--yellow-soft);padding:12px 16px;border-radius:0 8px 8px 0;margin:14px 0;max-width:78ch}
+.note.red{border-color:var(--card-red);background:var(--red-soft)}
+.note.green{border-color:var(--turf);background:var(--turf-soft)}
+.note b{font-weight:600}
+
+/* le terrain : élément signature */
+.pitch{margin:6px 0 4px;border-radius:10px;overflow:hidden;border:1px solid var(--turf-deep)}
+.pitch svg{display:block;width:100%;height:auto}
+.pitch text{font-family:var(--serif)}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:8px}
+
+.bet{padding:12px 0;border-bottom:1px solid var(--line-2)}.bet:last-child{border-bottom:0}.bet-top{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:2px}
+.empty{padding:22px 0;color:var(--muted)}
+.empty b{display:block;color:var(--ink);font-weight:600;margin-bottom:4px}
+.log{background:#0f1a15;color:#cfe3d6;border-radius:8px;padding:14px 16px;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace;min-height:92px;max-height:260px;overflow:auto;white-space:pre-wrap}
+.src{display:grid;grid-template-columns:1fr auto;gap:6px 16px;padding:14px 0;border-bottom:1px solid var(--line-2)}
+.src:last-child{border-bottom:0}
+.src h3{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.src .acts{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;justify-content:flex-end}
+.src .keyrow{grid-column:1/-1;display:flex;gap:8px;max-width:560px;margin-top:4px}
+.src small{color:var(--muted);display:block}
+.src small a{color:var(--turf-deep);font-weight:600}
+@media (prefers-color-scheme:dark){.src small a{color:#9bd9b8}}
+#toast{position:fixed;right:20px;bottom:20px;background:var(--ink);color:var(--chalk);padding:11px 16px;border-radius:8px;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;max-width:360px;z-index:9}
+#toast.on{opacity:1;transform:none}
+#toast.err{background:var(--card-red);color:#fff}
+
+.tabbar{display:none}
+.tiles{display:grid;gap:10px}
+.tile{display:flex;align-items:center;gap:14px;padding:14px 4px;border-bottom:1px solid var(--line-2);color:var(--ink);text-decoration:none;min-height:56px}
+.tile svg{width:22px;height:22px;flex:none;stroke:var(--turf);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tile b{display:block;font-weight:600}.tile span{color:var(--muted);font-size:13.5px}
+@media (max-width:860px){
+  body{grid-template-columns:1fr;padding-bottom:calc(68px + env(safe-area-inset-bottom))}
+  .side{display:none}
+  .tabbar{display:flex;position:fixed;left:0;right:0;bottom:0;background:#15212b;border-top:1px solid #26363f;padding:6px 6px calc(6px + env(safe-area-inset-bottom));gap:2px;z-index:8}
+  .tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#b9c4bd;text-decoration:none;font-size:11.5px;padding:5px 2px;border-radius:10px;min-height:50px}
+  .tabbar svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .tabbar a[aria-current=page]{background:var(--turf);color:#fff}
+  main{padding:20px 16px 28px}
+  h1{font-size:25px}h2{font-size:18px}
+  input,select{font-size:16px;min-height:46px}
+  .btn{min-height:46px}.btn.sm{min-height:40px}
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .g3.keep3{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  .fig{border-right:0;padding-right:0;margin-right:22px;margin-bottom:8px}
+  main table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .src{grid-template-columns:1fr}.src .acts{justify-content:flex-start}
+  #toast{left:16px;right:16px;bottom:calc(84px + env(safe-area-inset-bottom));max-width:none}
+}
+@media (display-mode:standalone){body{overscroll-behavior-y:contain}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<aside class="side">
+  <div class="brand">
+    <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="#9bd9b8" stroke-width="1.6"><rect x="1.5" y="4.5" width="23" height="17" rx="2"/><path d="M13 4.5v17"/><circle cx="13" cy="13" r="3.6"/></svg>
+    Value Bet
+  </div>
+  <nav aria-label="Navigation principale">
+    <a href="#accueil" data-nav="accueil"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg>Accueil</a>
+    <a href="#predire" data-nav="predire"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg>Prédire un match</a>
+    <a href="#comparer" data-nav="comparer"><svg viewBox="0 0 24 24"><path d="M7 4v16M7 4L4 7M7 4l3 3M17 20V4M17 20l-3-3M17 20l3-3"/></svg>Comparer des cotes</a>
+    <a href="#formations" data-nav="formations"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 5v14M3 12h4M17 12h4"/></svg>Formations</a>
+    <a href="#resultats" data-nav="resultats"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Résultats des tests</a>
+    <a href="#suivi" data-nav="suivi"><svg viewBox="0 0 24 24"><path d="M6 4h12v16H6z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>Suivi à blanc</a>
+    <a href="#sources" data-nav="sources"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 20h14"/></svg>Sources &amp; réglages</a>
+  </nav>
+  <div class="foot"><span class="dot" id="navdot"></span><span id="navstate">Chargement…</span><br>Aucun gain n'est garanti. Ne jouez que ce que vous acceptez de perdre.</div>
+</aside>
+<nav class="tabbar" aria-label="Navigation principale">
+  <a href="#accueil" data-tab="accueil"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg>Accueil</a>
+  <a href="#predire" data-tab="predire"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg>Prédire</a>
+  <a href="#comparer" data-tab="comparer"><svg viewBox="0 0 24 24"><path d="M7 4v16M7 4L4 7M7 4l3 3M17 20V4M17 20l-3-3M17 20l3-3"/></svg>Comparer</a>
+  <a href="#suivi" data-tab="suivi"><svg viewBox="0 0 24 24"><path d="M6 4h12v16H6z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>Suivi</a>
+  <a href="#plus" data-tab="plus"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg>Plus</a>
+</nav>
+
+<main>
+<!-- ============ PLUS ============ -->
+<section class="page" id="p-plus">
+  <div class="head"><h1>Plus</h1><p>Les autres parties de l'application.</p></div>
+  <div class="tiles">
+    <a class="tile" href="#formations"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 5v14M3 12h4M17 12h4"/></svg><div><b>Formations</b><span>Quelles formations réussissent le mieux</span></div></a>
+    <a class="tile" href="#resultats"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><div><b>Résultats des tests</b><span>Le modèle face aux bookmakers</span></div></a>
+    <a class="tile" href="#sources"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 20h14"/></svg><div><b>Sources &amp; réglages</b><span>Données, clé API, paramètres de mise, installation</span></div></a>
+  </div>
+</section>
+
+<!-- ============ ACCUEIL ============ -->
+<section class="page" id="p-accueil">
+  <div class="head"><h1>Tableau de bord</h1><p id="home-sub">Vos données et vos modèles, disponibles même sans connexion.</p></div>
+  <div class="block"><div class="figures" id="figs"></div></div>
+  <div class="block">
+    <h2>Ce que montrent les tests</h2>
+    <div id="verdict"></div>
+  </div>
+  <div class="block">
+    <h2>Prochains matchs</h2>
+    <div id="upcoming"></div>
+  </div>
+  <div class="block">
+    <h2>Données de cette application</h2>
+    <div id="lastlog"></div>
+  </div>
+</section>
+
+<!-- ============ PRÉDIRE ============ -->
+<section class="page" id="p-predire">
+  <div class="head"><h1>Prédire un match</h1><p>Choisissez le championnat et les deux équipes. Ajoutez les cotes d'un bookmaker pour savoir si un pari présente un avantage selon le modèle.</p></div>
+  <form id="pf" class="grid g3" autocomplete="off">
+    <div><label for="f-league">Championnat</label><select id="f-league"></select></div>
+    <div><label for="f-home">Équipe à domicile</label><select id="f-home"></select></div>
+    <div><label for="f-away">Équipe à l'extérieur</label><select id="f-away"></select></div>
+    <div class="grid g3 keep3" style="grid-column:1/-1">
+      <div><label for="f-oh">Cote domicile</label><input id="f-oh" inputmode="decimal" placeholder="2.10"></div>
+      <div><label for="f-od">Cote nul</label><input id="f-od" inputmode="decimal" placeholder="3.40"></div>
+      <div><label for="f-oa">Cote extérieur</label><input id="f-oa" inputmode="decimal" placeholder="3.60"></div></div>
+    <div class="row" style="grid-column:1/-1"><button class="btn" type="submit" id="f-go">Prédire</button><span class="muted">Les cotes sont facultatives.</span></div>
+  </form>
+  <div id="pred-out"></div>
+</section>
+
+<!-- ============ COMPARER ============ -->
+<section class="page" id="p-comparer">
+  <div class="head"><h1>Comparer des cotes</h1><p>Saisissez les cotes de votre bookmaker et celles d'une référence très précise comme Pinnacle. L'application retire la marge de la référence pour trouver la cote juste, puis montre où votre bookmaker paie trop ou pas assez.</p></div>
+  <form id="cf" class="grid" autocomplete="off">
+    <div style="max-width:560px"><label for="c-ref">Match avec cotes de référence déjà chargées</label><select id="c-ref"><option value="">Saisie manuelle</option></select>
+      <div class="row" style="margin-top:10px"><select id="c-live" aria-label="Championnat" style="max-width:260px"></select><button type="button" class="btn ghost sm" id="c-live-go">Charger les cotes en direct</button></div>
+      <small class="muted" style="display:block;margin-top:4px">Facultatif : utilise votre clé gratuite The Odds API (1 crédit par championnat chargé).</small></div>
+    <div><h3 style="margin-bottom:8px">Votre bookmaker</h3>
+      <div class="grid g3 keep3"><div><label for="c-bh">Domicile</label><input id="c-bh" inputmode="decimal" placeholder="ex. 2.20"></div><div><label for="c-bd">Nul</label><input id="c-bd" inputmode="decimal" placeholder="ex. 3.30"></div><div><label for="c-ba">Extérieur</label><input id="c-ba" inputmode="decimal" placeholder="ex. 3.40"></div></div></div>
+    <div><h3 style="margin-bottom:8px">Référence <span class="muted" id="c-refname" style="font-family:var(--sans);font-weight:400;font-size:14px"></span></h3>
+      <div class="grid g3 keep3"><div><label for="c-rh">Domicile</label><input id="c-rh" inputmode="decimal" placeholder="ex. 2.05"></div><div><label for="c-rd">Nul</label><input id="c-rd" inputmode="decimal" placeholder="ex. 3.45"></div><div><label for="c-ra">Extérieur</label><input id="c-ra" inputmode="decimal" placeholder="ex. 3.70"></div></div></div>
+    <div class="row"><button class="btn" type="submit">Comparer</button><span class="muted">Relevez les deux séries de cotes au même moment.</span></div>
+  </form>
+  <div id="cmp-out"></div>
+</section>
+
+<!-- ============ FORMATIONS ============ -->
+<section class="page" id="p-formations">
+  <div class="head"><h1>Formations</h1><p>Quelles formations réussissent le mieux, et contre quelles formations. Données StatsBomb (championnats féminins et plusieurs saisons masculines).</p></div>
+  <div class="note"><b>À lire avec prudence.</b> Les meilleures équipes jouent surtout en 4-3-3, donc ce système semble « gagner » beaucoup. La colonne « Effet propre » retire le niveau habituel de l'équipe : c'est elle qui mesure la formation elle-même.</div>
+  <div class="block"><h2>Toutes les formations</h2><div id="fm-global"></div></div>
+  <div class="block">
+    <h2>Duel de formations</h2>
+    <div class="grid g3"><div><label for="d-a">Formation A</label><select id="d-a"></select></div><div><label for="d-b">Formation B</label><select id="d-b"></select></div></div>
+    <div id="fm-duel" style="margin-top:14px"></div>
+  </div>
+  <div class="block">
+    <h2>Formations d'une équipe</h2>
+    <div style="max-width:380px"><label for="t-team">Équipe</label><select id="t-team"></select></div>
+    <div id="fm-team" style="margin-top:14px"></div>
+  </div>
+</section>
+
+<!-- ============ RÉSULTATS ============ -->
+<section class="page" id="p-resultats">
+  <div class="head"><h1>Résultats des tests</h1><p>Chaque match a été prédit uniquement avec les matchs précédents, puis comparé aux probabilités des bookmakers (marge retirée). Plus l'erreur est basse, meilleure est la prédiction.</p></div>
+  <div class="block"><h2>Premier League : buts seuls ou buts et compositions</h2><div id="rs-lineup"></div></div>
+  <div class="block"><h2>29 championnats européens</h2><p class="muted">Résultat d'une mise fixe sur chaque pari détecté par le modèle de buts.</p><div id="rs-leagues"></div></div>
+</section>
+
+<!-- ============ SUIVI ============ -->
+<section class="page" id="p-suivi">
+  <div class="head"><h1>Suivi à blanc</h1><p>Notez des paris virtuels, sans argent réel, pour voir sur la durée si vos prédictions battent les cotes.</p></div>
+  <div class="block"><div class="figures" id="jr-figs"></div><div id="jr-warn"></div></div>
+  <div class="block">
+    <h2>Ajouter un pari virtuel</h2>
+    <form id="jf" class="grid g4" autocomplete="off">
+      <div><label for="j-match">Match</label><input id="j-match" placeholder="Arsenal – Chelsea" required></div>
+      <div><label for="j-pick">Pari</label><input id="j-pick" placeholder="Victoire Arsenal" required></div>
+      <div><label for="j-odds">Cote</label><input id="j-odds" inputmode="decimal" required></div>
+      <div><label for="j-stake">Mise</label><input id="j-stake" inputmode="decimal" required></div>
+      <div class="row" style="grid-column:1/-1"><button class="btn" type="submit">Ajouter au suivi</button></div>
+    </form>
+  </div>
+  <div class="block"><h2>Historique</h2><div id="jr-list"></div></div>
+</section>
+
+<!-- ============ SOURCES & RÉGLAGES ============ -->
+<section class="page" id="p-sources">
+  <div class="head"><h1>Sources &amp; réglages</h1><p>Cette application garde ses données et votre suivi dans ce téléphone. Rien n'est envoyé sur Internet, sauf les cotes en direct si vous ajoutez une clé.</p></div>
+  <div class="block">
+    <h2>Application</h2>
+    <div class="figures" id="app-figs"></div>
+    <div class="row"><button class="btn" id="btn-install" hidden>Installer sur l'écran d'accueil</button><button class="btn ghost" id="btn-refresh">Rechercher de nouvelles données</button></div>
+    <p class="muted" id="install-hint" style="margin-top:10px"></p>
+  </div>
+  <div class="block">
+    <h2>Cotes en direct (facultatif)</h2>
+    <p class="muted">Collez votre clé gratuite The Odds API pour charger les cotes de référence dans « Comparer ». Elle reste dans ce téléphone.</p>
+    <form class="row" id="keyf"><input id="k-odds" type="password" autocomplete="off" aria-label="Clé The Odds API" placeholder="Clé The Odds API" style="flex:1;min-width:220px;width:auto"><button class="btn sm" type="submit">Enregistrer la clé</button><button class="btn ghost sm" type="button" id="k-clear">Effacer</button></form>
+  </div>
+  <div class="block">
+    <h2>Paramètres des paris</h2>
+    <form id="sf" class="grid g4">
+      <div><label for="s-bank">Capital de départ</label><input id="s-bank" inputmode="decimal"></div>
+      <div><label for="s-kelly">Part de Kelly (0 à 1)</label><input id="s-kelly" inputmode="decimal"></div>
+      <div><label for="s-max">Mise maximale (% du capital)</label><input id="s-max" inputmode="decimal"></div>
+      <div><label for="s-edge">Avantage minimal (%)</label><input id="s-edge" inputmode="decimal"></div>
+      <div class="row" style="grid-column:1/-1"><button class="btn" type="submit">Enregistrer les paramètres</button></div>
+    </form>
+  </div>
+  <div class="block">
+    <h2>Sauvegarde du suivi à blanc</h2>
+    <p class="muted">Le suivi est stocké dans le navigateur de ce téléphone : effacer les données du navigateur l'efface aussi. Faites une sauvegarde de temps en temps.</p>
+    <div class="row"><button class="btn ghost" id="j-export">Exporter le suivi</button><button class="btn ghost" id="j-import">Importer une sauvegarde</button><input type="file" id="j-file" accept="application/json,.json" hidden></div>
+  </div>
+  <div class="block">
+    <h2>Sources de données gratuites</h2>
+    <p class="muted">L'application sur ordinateur va chercher ces sources, puis fabrique les données de cette application (voir LISEZMOI.md). Les liens permettent d'obtenir les clés gratuites.</p>
+    <div id="src-list"></div>
+  </div>
+</section>
+</main>
+<div id="toast" role="status"></div>
+
+<script src="local-api.js"></script>
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pct=(x,d=1)=>x==null?'–':(x*100).toFixed(d).replace('.',',')+' %';
+const num=(x,d=2)=>x==null||x===''?'–':Number(x).toFixed(d).replace('.',',');
+const sgn=(x,d=1)=>x==null?'–':(x>0?'+':'')+Number(x).toFixed(d).replace('.',',');
+async function api(url,opt){const j=await VB.handle(url,opt);if(!j.ok)throw new Error(j.error||'Erreur');return j}
+const post=(u,b)=>api(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b||{})});
+let tt;function toast(m,err){const t=$('#toast');t.textContent=m;t.className='on'+(err?' err':'');clearTimeout(tt);tt=setTimeout(()=>t.className='',3600)}
+const fmtDate=s=>s?new Date(s).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'–';
+
+/* ---------- navigation ---------- */
+const loaders={};
+const MORE=['formations','resultats','sources'];
+function route(){const k=(location.hash||'#accueil').slice(1);const id=$('#p-'+k)?k:'accueil';
+  $$('.page').forEach(p=>p.classList.toggle('on',p.id==='p-'+id));
+  $$('[data-nav]').forEach(a=>{if(a.dataset.nav===id)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+  const tab=MORE.includes(id)?'plus':id;
+  $$('[data-tab]').forEach(a=>{if(a.dataset.tab===tab)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+  (loaders[id]||(()=>{}))();scrollTo(0,0)}
+addEventListener('hashchange',route);
+
+/* ---------- accueil ---------- */
+loaders.accueil=async()=>{
+  try{const s=await api('/api/status');const c=s.counts;
+    $('#home-sub').textContent=s.newest?`Données locales à jour au ${fmtDate(s.newest)}.`:'Aucune donnée locale : lancez une mise à jour.';
+    $('#navdot').className='dot'+(s.newest?' on':'');$('#navstate').textContent=s.newest?'Données au '+fmtDate(s.newest):'Aucune donnée';
+    const f=(v,l)=>`<div class="fig"><b>${Number(v).toLocaleString('fr-FR')}</b><span>${l}</span></div>`;
+    $('#figs').innerHTML=f(c.odds,'matchs avec cotes')+f(c.player_match,'lignes joueur par match')+f(c.sb_lineups/22|0,'compositions avec formation')+f(c.journal,'paris dans le suivi');
+    const m=(s.lineup.modeles||[]);
+    if(m.length){const lo=Math.min(...m.map(x=>x.logloss)),hi=Math.max(...m.map(x=>x.logloss));
+      $('#verdict').innerHTML=`<div class="note"><b>Le marché prédit mieux que nos modèles.</b> Sur ${s.lineup.matchs.toLocaleString('fr-FR')} matchs de Premier League, les cotes des bookmakers sont plus précises que le modèle de buts, et ajouter les compositions n'améliore pas la prédiction. Ne misez pas d'argent réel sur ces seules prédictions.</div>
+      <table><thead><tr><th>Modèle</th><th class="n">Erreur (log loss)</th><th class="n">Écart avec le marché</th></tr></thead><tbody>${m.map(x=>`<tr><td>${esc(x['modèle'])}</td><td class="n">${num(x.logloss,4)}</td><td class="n ${x.logloss-lo>0?'neg-t':''}">${x.logloss-lo>0?'+'+num(x.logloss-lo,4):'référence'}</td></tr>`).join('')}</tbody></table>`}
+    else $('#verdict').innerHTML='<div class="empty"><b>Pas encore de résultats de test.</b>Lancez <code>python main_lineup.py</code> pour les produire.</div>';
+    $('#upcoming').innerHTML=s.upcoming.length?`<table><thead><tr><th>Coup d'envoi</th><th>Match</th><th>Formations</th></tr></thead><tbody>${s.upcoming.map(u=>`<tr><td>${esc((u.kickoff||'').replace('T',' ').slice(0,16))}</td><td>${esc(u.home)} – ${esc(u.away)}</td><td>${esc(u.hf||'')} ${u.af?'/ '+esc(u.af):''}</td></tr>`).join('')}</tbody></table>`
+      :'<div class="empty"><b>Aucun match à venir enregistré.</b>Les calendriers sont ajoutés par l’application sur ordinateur (sources en direct) au moment de fabriquer les données.</div>';
+    $('#lastlog').innerHTML=`<table><tbody><tr><td class="muted" style="width:210px">Résultats et cotes jusqu'au</td><td>${esc(fmtDate(s.newest))}</td></tr><tr><td class="muted">Données générées le</td><td>${esc(fmtDate(s.generated))}</td></tr></tbody></table><p class="muted" style="margin-top:8px">Pour de nouvelles données : mettez à jour l'application sur ordinateur puis republiez (LISEZMOI.md), et touchez « Rechercher de nouvelles données » dans Sources &amp; réglages.</p>`;
+  }catch(e){toast(e.message,1)}};
+
+/* ---------- prédire ---------- */
+let LEAGUES=[];
+async function initPredict(){
+  if(!LEAGUES.length){LEAGUES=(await api('/api/leagues')).leagues}
+  const by={};LEAGUES.forEach(l=>(by[l.country||'Autres']=by[l.country||'Autres']||[]).push(l));
+  $('#f-league').innerHTML=Object.entries(by).map(([c,ls])=>`<optgroup label="${esc(c)}">${ls.map(l=>`<option value="${l.code}">${esc(l.name)}${l.tier?' (D'+l.tier+')':''}</option>`).join('')}</optgroup>`).join('');
+  $('#f-league').value=LEAGUES.some(l=>l.code==='E0')?'E0':LEAGUES[0]?.code;
+  await loadTeams();}
+async function loadTeams(){const code=$('#f-league').value;if(!code)return;
+  const t=(await api('/api/teams/'+code)).teams;const o=t.map(x=>`<option>${esc(x)}</option>`).join('');
+  $('#f-home').innerHTML=o;$('#f-away').innerHTML=o;if(t.length>1)$('#f-away').selectedIndex=1;}
+loaders.predire=()=>initPredict().catch(e=>toast(e.message,1));
+$('#f-league').addEventListener('change',()=>loadTeams().catch(e=>toast(e.message,1)));
+let LASTPRED=null;
+function pitch(p,home,away){
+  const W=1000,H=230,wh=W*p.home,wd=W*p.draw,wa=W*p.away,cx=wh+wd/2;
+  const cut=(t,n)=>t.length>n?t.slice(0,n-1)+'…':t;
+  const zone=(x,w,fill,pc,lab)=>`<rect x="${x}" y="0" width="${w}" height="${H}" fill="${fill}"/>
+    <text x="${x+w/2}" y="${w>120?108:116}" text-anchor="middle" fill="#fff" font-size="${w>220?44:w>120?36:26}" font-weight="600">${pc}</text>
+    ${w>110?`<text x="${x+w/2}" y="140" text-anchor="middle" fill="#fff" fill-opacity=".88" font-size="18">${lab}</text>`:''}`;
+  const L='stroke="#fff" stroke-opacity=".45" stroke-width="2" fill="none"';
+  return `<div class="pitch"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Probabilités : ${esc(home)} ${pct(p.home,0)}, nul ${pct(p.draw,0)}, ${esc(away)} ${pct(p.away,0)}">
+    ${zone(0,wh,'#2b6a4d',pct(p.home,0),esc(cut(home,18)))}
+    ${zone(wh,wd,'#4f8a6b',pct(p.draw,0),'Match nul')}
+    ${zone(wh+wd,wa,'#3f5a70',pct(p.away,0),esc(cut(away,18)))}
+    <rect x="8" y="8" width="${W-16}" height="${H-16}" ${L}/>
+    <rect x="8" y="${H/2-38}" width="30" height="76" ${L}/><rect x="${W-38}" y="${H/2-38}" width="30" height="76" ${L}/>
+    <circle cx="${cx}" cy="${H/2}" r="64" ${L}/>
+    <line x1="${wh}" y1="0" x2="${wh}" y2="${H}" stroke="#fff" stroke-width="3"/><line x1="${wh+wd}" y1="0" x2="${wh+wd}" y2="${H}" stroke="#fff" stroke-width="3"/></svg></div>`}
+$('#pf').addEventListener('submit',async e=>{e.preventDefault();const b=$('#f-go');b.disabled=true;
+  try{const body={league:$('#f-league').value,home:$('#f-home').value,away:$('#f-away').value,
+      odds_home:$('#f-oh').value.replace(',','.'),odds_draw:$('#f-od').value.replace(',','.'),odds_away:$('#f-oa').value.replace(',','.')};
+    const r=await post('/api/predict',body);LASTPRED={...r,body};renderPred(r,body)}
+  catch(err){$('#pred-out').innerHTML=`<div class="note red">${esc(err.message)}</div>`}
+  b.disabled=false});
+const NAME={home:'Victoire domicile',draw:'Match nul',away:'Victoire extérieur'};
+function renderPred(r,b){
+  let h=`<div class="block" style="margin-top:22px"><h2>${esc(b.home)} – ${esc(b.away)}</h2>${pitch(r.p,b.home,b.away)}
+    <div class="legend"><span>But attendus : ${num(r.lam[0])} – ${num(r.lam[1])}</span><span>Plus de 2,5 buts : ${pct(r.over25,0)}</span><span>Les deux équipes marquent : ${pct(r.btts,0)}</span></div></div>`;
+  h+=`<div class="block"><h2>Scores les plus probables</h2><table><tbody>${r.scores.map(s=>`<tr><td style="width:90px"><b style="font-family:var(--serif);font-size:17px">${s[0]} – ${s[1]}</b></td><td class="n" style="width:80px">${pct(s[2])}</td><td><div class="track"><div class="bar mid" style="width:${s[2]/r.scores[0][2]*100}%"></div></div></td></tr>`).join('')}</tbody></table></div>`;
+  if(r.market){const m=r.market;
+    h+=`<div class="block"><h2>Comparaison avec les cotes</h2><table><thead><tr><th>Issue</th><th class="n">Cote</th><th class="n">Marché (sans marge)</th><th class="n">Modèle</th><th class="n">Avantage</th></tr></thead><tbody>${m.rows.map(x=>`<tr><td>${NAME[x.outcome]}</td><td class="n">${num(x.odds)}</td><td class="n">${pct(x.market)}</td><td class="n">${pct(x.model)}</td><td class="n ${x.edge>0?'pos':'neg-t'}">${sgn(x.edge*100)} %</td></tr>`).join('')}</tbody></table>
+    <p class="muted" style="margin-top:8px">Marge du bookmaker : ${pct(m.margin)}.</p>`;
+    if(m.best){h+=`<div class="note"><b>Avantage détecté : ${NAME[m.best.outcome].toLowerCase()} à ${num(m.best.odds)} (${sgn(m.best.edge*100)} %).</b> Mise suggérée : ${num(m.best.stake)} sur un capital de ${num(m.bankroll,0)}. Sur nos tests passés, ce type de pari a perdu de l'argent en moyenne : traitez-le comme une hypothèse à vérifier dans le suivi à blanc, pas comme un conseil.<div class="row" style="margin-top:10px"><button class="btn sm" id="addj">Ajouter au suivi à blanc</button></div></div>`}
+    else h+=`<div class="note green"><b>Aucun pari conseillé.</b> Le modèle ne trouve pas d'avantage suffisant sur ces cotes.</div>`;
+    h+='</div>'}
+  $('#pred-out').innerHTML=h;
+  const a=$('#addj');if(a)a.onclick=async()=>{const m=r.market.best;await post('/api/journal',{league:b.league,home:b.home,away:b.away,pick:NAME[m.outcome]+' '+(m.outcome==='draw'?'':(m.outcome==='home'?b.home:b.away)),odds:m.odds,stake:m.stake,p_model:m.p});toast('Pari ajouté au suivi à blanc.')}}
+
+/* ---------- comparateur ---------- */
+let REFM=[];
+loaders.comparer=async()=>{try{const r=await api('/api/ref_matches');REFM=r.matches;
+  $('#c-ref').innerHTML='<option value="">Saisie manuelle</option>'+REFM.map((m,i)=>`<option value="${i}">${esc(m.home)} – ${esc(m.away)} (${esc((m.commence||'').slice(0,10))}, ${esc(m.source)})</option>`).join('');
+  if(REFM.length)$('#cmp-hint')?.remove();
+  if(!REFM.length&&!$('#cmp-hint')){$('#cf').insertAdjacentHTML('afterend','<div class="note" id="cmp-hint" style="margin-top:14px"><b>Aucune cote de référence chargée.</b> Saisissez-les à la main, ou ajoutez une clé gratuite The Odds API dans « Sources &amp; réglages » pour les charger automatiquement.</div>')}
+}catch(e){toast(e.message,1)}};
+$('#c-ref').addEventListener('change',e=>{const m=REFM[e.target.value];if(!m){$('#c-refname').textContent='';return}
+  [$('#c-rh'),$('#c-rd'),$('#c-ra')].forEach((el,i)=>el.value=m.odds[i].toFixed(2));$('#c-refname').textContent='('+m.source+')'});
+$('#cf').addEventListener('submit',async e=>{e.preventDefault();
+  try{const r=await post('/api/compare',{book:[$('#c-bh').value,$('#c-bd').value,$('#c-ba').value],ref:[$('#c-rh').value,$('#c-rd').value,$('#c-ra').value]});
+    let h=`<div class="block" style="margin-top:22px"><div class="figures"><div class="fig"><b>${pct(r.book_margin)}</b><span>marge de votre bookmaker</span></div><div class="fig"><b>${pct(r.ref_margin)}</b><span>marge de la référence</span></div><div class="fig"><b>${sgn(r.extra_margin*100)} points</b><span>marge en plus chez votre bookmaker</span></div></div></div>
+    <div class="block"><h2>Issue par issue</h2><table><thead><tr><th>Issue</th><th class="n">Votre cote</th><th class="n">Cote juste de la référence</th><th class="n">Cote minimale à accepter</th><th class="n">Avantage</th></tr></thead><tbody>${r.rows.map(x=>`<tr><td>${NAME[x.outcome]}</td><td class="n">${num(x.book)}</td><td class="n">${num(x.fair_odds)}</td><td class="n">${num(x.min_odds)}</td><td class="n ${x.edge>0?'pos':'neg-t'}">${sgn(x.edge*100)} %</td></tr>`).join('')}</tbody></table>
+    <p class="muted" style="margin-top:8px">L'avantage est le gain moyen attendu par unité misée si la référence a raison. La cote minimale est celle à partir de laquelle l'avantage atteint votre seuil de ${num(r.min_edge,0)} %.</p>`;
+    if(r.ref_weak)h+=`<div class="note red"><b>La référence a une marge élevée (${pct(r.ref_margin)}).</b> Un bookmaker précis comme Pinnacle est généralement sous 4 %. Cette comparaison est peu fiable.</div>`;
+    if(r.best)h+=`<div class="note"><b>Votre bookmaker paie trop sur : ${NAME[r.best.outcome].toLowerCase()} à ${num(r.best.odds)} (${sgn(r.best.edge*100)} %).</b> Mise suggérée : ${num(r.best.stake)} sur un capital de ${num(r.bankroll,0)}. Un écart sur un seul match peut aussi venir d'un décalage d'horaire entre les deux cotes, ou d'une information que le bookmaker local n'a pas encore. Vérifiez-le dans le suivi à blanc avant de miser de l'argent réel.</div>`;
+    else h+=`<div class="note green"><b>Aucun écart au-dessus de votre seuil de ${num(r.min_edge,0)} %.</b> Les écarts de cette rencontre sont trop petits pour compenser le risque d'erreur. La marge en plus de votre bookmaker est un coût certain sur chaque pari.</div>`;
+    $('#cmp-out').innerHTML=h+'</div>'}catch(err){$('#cmp-out').innerHTML=`<div class="note red">${esc(err.message)}</div>`}});
+
+/* ---------- formations ---------- */
+let FM=null;
+loaders.formations=async()=>{try{if(!FM)FM=await api('/api/formations');
+  const g=FM.globales;
+  $('#fm-global').innerHTML=g.length?`<table><thead><tr><th>Formation</th><th class="n">Matchs</th><th class="n">Points / match</th><th class="n">Victoires</th><th class="n">Différence de buts</th><th class="n">Effet propre</th></tr></thead><tbody>${g.map(r=>{const e=+r.diff_buts_ajustee;return `<tr><td><b>${esc(r.formation.split('').join('-'))}</b></td><td class="n">${r.n}</td><td class="n">${num(r.pts_par_match)}</td><td class="n">${pct(+r.victoires,0)}</td><td class="n">${sgn(+r.diff_buts,2)}</td><td class="n ${e>0.05?'pos':e<-0.05?'neg-t':''}">${sgn(e,2)}</td></tr>`}).join('')}</tbody></table>`:'<div class="empty"><b>Pas de données de formations.</b>Mettez à jour la source StatsBomb, puis lancez <code>python formation_report.py</code>.</div>';
+  const forms=[...new Set(FM.duels.flatMap(d=>[d.formation,d.opp_formation]))].sort();
+  const fo=forms.map(f=>`<option value="${f}">${f.split('').join('-')}</option>`).join('');
+  if(!$('#d-a').options.length){$('#d-a').innerHTML=fo;$('#d-b').innerHTML=fo;$('#d-b').selectedIndex=Math.min(1,forms.length-1)}
+  const duel=()=>{const a=$('#d-a').value,b=$('#d-b').value;const r=FM.duels.find(d=>d.formation===a&&d.opp_formation===b);const q=a.split('').join('-'),w=b.split('').join('-');
+    $('#fm-duel').innerHTML=a===b?'<div class="muted">Choisissez deux formations différentes.</div>':r?`<p><b>${q}</b> contre <b>${w}</b> : ${num(r.pts_par_match)} points par match, différence de buts ${sgn(+r.diff_buts,2)}, sur ${r.n} matchs.</p><p class="muted">Ce résultat mélange le niveau des équipes. Les meilleures équipes jouent souvent en 4-3-3.</p>`:`<div class="muted">Moins de 30 matchs dans les données pour ce duel : l'échantillon est trop petit pour conclure.</div>`};
+  $('#d-a').onchange=$('#d-b').onchange=duel;duel();
+  const teams=[...new Set(FM.equipes.map(e=>e.team))].sort();
+  if(!$('#t-team').options.length)$('#t-team').innerHTML=teams.map(t=>`<option>${esc(t)}</option>`).join('');
+  const team=()=>{const rows=FM.equipes.filter(e=>e.team===$('#t-team').value);
+    $('#fm-team').innerHTML=rows.length?`<table><thead><tr><th>Formation</th><th class="n">Matchs</th><th class="n">Points / match</th><th class="n">Différence de buts</th></tr></thead><tbody>${rows.map(r=>`<tr><td><b>${esc(r.formation.split('').join('-'))}</b></td><td class="n">${r.n}</td><td class="n">${num(r.pts_par_match)}</td><td class="n">${sgn(+r.diff_buts,2)}</td></tr>`).join('')}</tbody></table>`:'<div class="muted">Pas assez de matchs (8 minimum par formation).</div>'};
+  $('#t-team').onchange=team;team();
+}catch(e){toast(e.message,1)}};
+
+/* ---------- résultats ---------- */
+loaders.resultats=async()=>{try{const r=await api('/api/results');const m=r.lineup.modeles||[];
+  if(m.length){const lo=Math.min(...m.map(x=>x.logloss)),hi=Math.max(...m.map(x=>x.logloss));
+    $('#rs-lineup').innerHTML=`<table><thead><tr><th>Modèle</th><th class="n">Erreur (log loss)</th><th class="n">Erreur (Brier)</th><th class="n">Écart avec le marché</th></tr></thead><tbody>${m.map(x=>`<tr><td>${esc(x['modèle'])}</td><td class="n">${num(x.logloss,4)}</td><td class="n">${num(x.brier,4)}</td><td class="n ${x.logloss-lo>0?'neg-t':''}">${x.logloss-lo>0?'+'+num(x.logloss-lo,4):'référence'}</td></tr>`).join('')}</tbody></table><p class="muted" style="margin-top:8px">${r.lineup.matchs.toLocaleString('fr-FR')} matchs, saisons 2021-22 à 2026-27.</p>`}
+  else $('#rs-lineup').innerHTML='<div class="empty"><b>Pas encore de test.</b>Lancez <code>python main_lineup.py</code>.</div>';
+  const L=r.leagues.map(x=>({...x,roi:+x['roi_flat_%'],gap:+x.logloss_modele-+x.logloss_marche})).sort((a,b)=>b.roi-a.roi);
+  const mx=Math.max(...L.map(x=>Math.abs(x.roi)),1);
+  $('#rs-leagues').innerHTML=L.length?`<table><thead><tr><th>Championnat</th><th class="n">Matchs</th><th class="n">Paris</th><th class="n">Réussite</th><th class="n">Résultat</th><th style="width:26%"></th></tr></thead><tbody>${L.map(x=>`<tr><td>${esc(x.championnat)}</td><td class="n">${x.matchs}</td><td class="n">${x.paris}</td><td class="n">${num(+x['taux_reussite_%'],1)} %</td><td class="n ${x.roi>=0?'pos':'neg-t'}">${sgn(x.roi)} %</td><td><div class="track"><div class="bar neg" style="width:${Math.abs(x.roi)/mx*100}%"></div></div></td></tr>`).join('')}</tbody></table>`:'<div class="empty"><b>Pas de résultats.</b>Lancez <code>python main.py</code>.</div>'}catch(e){toast(e.message,1)}};
+
+/* ---------- suivi ---------- */
+const RES={pending:['En attente','warn'],won:['Gagné','good'],lost:['Perdu','bad']};
+async function loadJournal(){try{const j=await api('/api/journal');const s=j.summary;
+  const f=(v,l)=>`<div class="fig"><b>${v}</b><span>${l}</span></div>`;
+  $('#jr-figs').innerHTML=f(num(s.current,0),'capital virtuel (départ '+num(s.start,0)+')')+f(sgn(s.profit,2),'gain ou perte')+f(s.roi==null?'–':sgn(s.roi*100)+' %','retour sur mises')+f(s.won+' / '+s.settled,'paris gagnés')+f(s.pending,'en attente');
+  $('#jr-warn').innerHTML=s.current<s.start*.7?'<div class="note red"><b>Votre capital virtuel a perdu plus de 30 %.</b> Faites une pause et relisez vos hypothèses avant de continuer.</div>':'';
+  $('#jr-list').innerHTML=j.items.length?j.items.map(i=>`<div class="bet"><div class="bet-top"><b>${esc(i.home?i.home+' – '+i.away:i.note)}</b><span class="badge ${RES[i.result][1]}">${RES[i.result][0]}</span></div>
+    <div class="muted">${esc(i.pick)} · cote ${num(i.odds)} · mise ${num(i.stake)} · ${esc(i.ts.replace('T',' '))}</div>
+    <div class="row" style="margin-top:8px">${i.result==='pending'?`<button class="btn ghost sm" data-s="${i.id}:won">Gagné</button><button class="btn ghost sm" data-s="${i.id}:lost">Perdu</button>`:`<button class="btn ghost sm" data-s="${i.id}:pending">Rouvrir</button>`}<button class="btn danger sm" data-d="${i.id}" aria-label="Supprimer">Supprimer</button></div></div>`).join(''):'<div class="empty"><b>Aucun pari virtuel.</b>Ajoutez-en un ci-dessus, ou depuis « Prédire un match » quand un avantage est détecté.</div>';
+  $$('[data-s]').forEach(b=>b.onclick=async()=>{const[id,r]=b.dataset.s.split(':');await post('/api/journal/'+id,{result:r});loadJournal()});
+  $$('[data-d]').forEach(b=>b.onclick=async()=>{await api('/api/journal/'+b.dataset.d,{method:'DELETE'});loadJournal()});
+}catch(e){toast(e.message,1)}}
+loaders.suivi=loadJournal;
+$('#jf').addEventListener('submit',async e=>{e.preventDefault();
+  try{await post('/api/journal',{home:$('#j-match').value,away:'',pick:$('#j-pick').value,odds:$('#j-odds').value.replace(',','.'),stake:$('#j-stake').value.replace(',','.'),note:$('#j-match').value});
+    e.target.reset();toast('Pari ajouté au suivi à blanc.');loadJournal()}catch(err){toast(err.message,1)}});
+
+/* ---------- sources & réglages ---------- */
+const TYPE={fichier_github:'Fichier GitHub',fichier_web:'Fichier web',api_gratuite:'API gratuite',api_cle:'API avec clé',non_implemente:'Non codée'};
+let DEFERRED=null;
+const standalone=()=>matchMedia('(display-mode:standalone)').matches||navigator.standalone;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();DEFERRED=e;const b=$('#btn-install');if(b)b.hidden=false;setHint()});
+addEventListener('appinstalled',()=>{DEFERRED=null;const b=$('#btn-install');if(b)b.hidden=true;toast('Application installée.');setHint()});
+function setHint(){const h=$('#install-hint');if(!h)return;
+  h.textContent=standalone()?'L\'application est installée : elle s\'ouvre en plein écran et fonctionne sans connexion.':DEFERRED?'Touchez « Installer » pour l\'ajouter à l\'écran d\'accueil.':'Si le bouton n\'apparaît pas : menu ⋮ de Chrome, puis « Installer l\'application » ou « Ajouter à l\'écran d\'accueil ». L\'installation demande une adresse https.'}
+async function loadSources(){try{const r=await api('/api/sources'),st=await api('/api/status');
+  const f=(v,l)=>`<div class="fig"><b>${v}</b><span>${l}</span></div>`;
+  $('#app-figs').innerHTML=f(esc(fmtDate(st.newest)),'données jusqu\'au')+f(esc(fmtDate(st.generated)),'générées le')+f(navigator.onLine?'En ligne':'Hors ligne','connexion')+f(standalone()?'Oui':'Non','installée');
+  $('#btn-install').hidden=!DEFERRED;setHint();
+  $('#k-odds').placeholder=r.odds_key_set?'•••••••• (clé enregistrée)':'Clé The Odds API';
+  $('#src-list').innerHTML=r.sources.map(x=>`<div class="src"><div><h3>${esc(x.nom)} <span class="badge">${TYPE[x.type]||x.type}</span> <span class="badge ${x.codee?'good':'warn'}">${x.codee?'Codée':'Non codée'}</span></h3>
+    <small>${esc(x.apporte)}</small>${x.gratuit?`<small><b>Offre gratuite :</b> ${esc(x.gratuit)}</small>`:''}${(x.inscription||x.doc)?`<small>${x.inscription?`<a href="${esc(x.inscription)}" target="_blank" rel="noopener">Obtenir une clé gratuite</a>`:''}${x.inscription&&x.doc?' · ':''}${x.doc?`<a href="${esc(x.doc)}" target="_blank" rel="noopener">Documentation</a>`:''}</small>`:''}</div></div>`).join('');
+  const t=r.settings;$('#s-bank').value=t.bankroll;$('#s-kelly').value=t.kelly_fraction;$('#s-max').value=t.max_stake_pct;$('#s-edge').value=t.min_edge_pct;
+}catch(e){toast(e.message,1)}}
+loaders.sources=loadSources;
+$('#btn-install').onclick=async()=>{if(!DEFERRED)return;DEFERRED.prompt();await DEFERRED.userChoice.catch(()=>{});DEFERRED=null;$('#btn-install').hidden=true};
+$('#btn-refresh').onclick=async e=>{const b=e.target;b.disabled=true;
+  try{const before=VB.snapshot().generated;const n=await VB.loadSnapshot(true);toast(n.generated!==before?'Nouvelles données du '+fmtDate(n.generated)+'.':'Les données sont déjà à jour.');loadSources()}
+  catch(err){toast(navigator.onLine?err.message:'Hors ligne : les données enregistrées restent utilisables.',1)}b.disabled=false};
+$('#keyf').addEventListener('submit',async e=>{e.preventDefault();const v=$('#k-odds').value.trim();if(!v){toast('Collez d\'abord votre clé.',1);return}
+  try{await post('/api/settings',{ODDS_API_KEY:v});$('#k-odds').value='';toast('Clé enregistrée sur ce téléphone.');loadSources()}catch(err){toast(err.message,1)}});
+$('#k-clear').onclick=async()=>{await post('/api/settings',{ODDS_API_KEY:''});toast('Clé effacée.');loadSources()};
+$('#sf').addEventListener('submit',async e=>{e.preventDefault();
+  try{await post('/api/settings',{bankroll:$('#s-bank').value,kelly_fraction:$('#s-kelly').value,max_stake_pct:$('#s-max').value,min_edge_pct:$('#s-edge').value});toast('Paramètres enregistrés.');loadSources()}catch(err){toast(err.message,1)}});
+$('#j-export').onclick=()=>{const blob=new Blob([JSON.stringify(VB.journalExport(),null,2)],{type:'application/json'});const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='suivi-value-bet-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)};
+$('#j-import').onclick=()=>$('#j-file').click();
+$('#j-file').onchange=async e=>{const f=e.target.files[0];if(!f)return;
+  try{const n=VB.journalImport(JSON.parse(await f.text()));toast(n+' paris importés.')}catch(err){toast(err.message||'Fichier invalide.',1)}e.target.value=''};
+$('#c-live').innerHTML=Object.entries(VB.ODDS_SPORTS).map(([k,v])=>`<option value="${k}">${esc(v)}</option>`).join('');
+$('#c-live-go').onclick=async e=>{const b=e.target;b.disabled=true;
+  try{const r=await VB.fetchLiveRefs($('#c-live').value);toast(r.count+' matchs chargés'+(r.left?', crédits restants : '+r.left:'')+'.');await loaders.comparer()}
+  catch(err){toast(err.userMessage||err.message,1)}b.disabled=false};
+
+function navState(){api('/api/status').then(s=>{$('#navdot').className='dot'+(s.newest&&navigator.onLine?' on':'');$('#navstate').textContent=(navigator.onLine?'':'Hors ligne · ')+(s.newest?'Données au '+fmtDate(s.newest):'Aucune donnée')}).catch(()=>{$('#navstate').textContent='Données indisponibles'})}
+addEventListener('online',navState);addEventListener('offline',navState);
+navState();
+if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+route();
+</script>
+</body>
+</html>
