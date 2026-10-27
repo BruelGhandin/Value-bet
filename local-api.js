@@ -207,7 +207,7 @@
       if (!SNAP) await loadSnapshot();
       if (url === '/api/status') {
         const c = Object.assign({}, SNAP.counts, { journal: jload().length });
-        return ok({ counts: c, newest: SNAP.newest, generated: SNAP.generated, last: [], upcoming: SNAP.upcoming || [], lineup: SNAP.lineup || {} });
+        return ok({ counts: c, newest: SNAP.newest, generated: SNAP.generated, last: [], upcoming: [], lineup: SNAP.lineup || {}, live: SNAP.live || {} });
       }
       if (url === '/api/leagues') return ok({ leagues: SNAP.leagues });
       if ((m = url.match(/^\/api\/teams\/(.+)$/))) return ok({ teams: Object.keys((SNAP.models[m[1]] || { teams: {} }).teams).sort((a, b) => a.localeCompare(b)) });

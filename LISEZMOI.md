@@ -1,31 +1,19 @@
-# Value Bet : application Android (PWA)
+# Value Bet : application Android (PWA) avec mise à jour automatique
 
-Application installable sur l'écran d'accueil d'Android. Elle fait tous ses calculs dans le téléphone et marche sans connexion.
+## Ce que fait le site tout seul (GitHub Actions, gratuit)
+- **Chaque jour à 06:00 (Brazzaville)** : retélécharge l'historique de résultats et cotes, recalcule les modèles, charge les cotes de référence si la clé The Odds API est enregistrée.
+- **Toutes les 20 minutes (09:00 à 23:00 Brazzaville)** : lit les matchs (ESPN), enregistre la composition et la formation dès qu'elles sont publiées (environ 1 h avant le match), fait la prédiction, enregistre les scores et mesure la fiabilité.
+- Le résultat est écrit dans `data/snapshot.json` : l'application l'affiche dans « Matchs du jour ». Les compositions et prédictions sont gardées dans `engine/data/live.db`, qui grossit chaque jour.
 
-## Ce qu'elle contient
-Prédire un match, Comparer des cotes (Pinnacle comme référence), Suivi à blanc, Formations, Résultats des tests, Sources & réglages.
-Le suivi et les réglages sont gardés dans le navigateur du téléphone (pensez à « Exporter le suivi »).
+## Mise en route (une seule fois)
+1. Fusionnez la demande de modification, puis ouvrez l'onglet **Actions** du dépôt. Si GitHub demande d'activer les workflows, acceptez.
+2. Choisissez « Value Bet - mise à jour automatique » > **Run workflow** > mode `full` > Run. C'est le premier essai réel : ouvrez l'exécution pour voir si chaque étape est verte.
+3. Facultatif : Settings > Secrets and variables > Actions > New repository secret, nom `ODDS_API_KEY`, valeur votre clé gratuite The Odds API (500 crédits par mois).
 
-## Publier gratuitement (GitHub Pages)
-L'installation demande une adresse **https** : GitHub Pages en fournit une gratuitement.
-1. Dans votre dépôt GitHub, mettez le contenu du dossier `pwa/` (à la racine du dépôt, ou dans un dossier `docs/`).
-2. Réglages du dépôt > Pages > choisissez la branche et le dossier (`/` ou `/docs`).
-3. Sur Android, ouvrez `https://VOTRE-NOM.github.io/VOTRE-DEPOT/` dans Chrome.
-4. Menu ⋮ > « Installer l'application » (ou le bouton « Installer » dans Sources & réglages).
+## Limites à connaître
+- L'API d'ESPN n'est pas officielle : le format ou les codes de championnat peuvent changer. Rien n'a pu être testé avec le vrai service avant la mise en ligne.
+- GitHub peut décaler un horaire de plusieurs minutes, et désactive les tâches planifiées d'un dépôt resté 60 jours sans activité.
+- La formation est enregistrée et affichée, mais ne modifie pas encore les probabilités : les tests n'ont montré aucun gain. La section « Fiabilité mesurée » dira avec le temps si les prédictions battent le marché.
 
-## Mettre à jour les données
-Sur l'ordinateur :
-
-    python update.py          # télécharge les nouvelles données
-    python export_pwa.py      # régénère pwa/data/snapshot.json
-
-Puis republiez le dossier `pwa/` sur GitHub. Sur le téléphone, ouvrez l'application en ligne : les nouvelles données arrivent seules,
-ou touchez « Rechercher de nouvelles données ».
-
-## Cotes en direct (facultatif)
-Collez votre clé gratuite The Odds API dans Sources & réglages. Dans « Comparer », choisissez un championnat puis « Charger les cotes en direct »
-(1 crédit sur 500 par mois). Cette fonction n'a pas pu être testée en vrai : si le navigateur la bloque, saisissez les cotes à la main.
-
-## Essai rapide sur l'ordinateur
-
-    cd pwa && python -m http.server 8790     # puis http://localhost:8790
+## Essai sur l'ordinateur
+    cd engine && python daily.py --full --pwa-dir ..

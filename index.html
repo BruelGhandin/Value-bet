@@ -110,6 +110,13 @@ input:hover,select:hover{border-color:#b8bfb5}
 .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:8px}
 
 .bet{padding:12px 0;border-bottom:1px solid var(--line-2)}.bet:last-child{border-bottom:0}.bet-top{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:2px}
+.mini{display:flex;height:10px;border-radius:5px;overflow:hidden;margin:8px 0 4px;background:var(--line-2)}.mini i{display:block;height:100%}
+.mrow{padding:14px 0;border-bottom:1px solid var(--line-2)}.mrow:last-child{border-bottom:0}
+.mtop{display:flex;justify-content:space-between;gap:10px;align-items:baseline}.mtop b{font-weight:600}
+.mpr{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+details.lg{border-top:1px solid var(--line);padding:2px 0}details.lg>summary{cursor:pointer;padding:12px 0;font:600 16px var(--serif);list-style:none;display:flex;justify-content:space-between}
+details.lg>summary::-webkit-details-marker{display:none}details.lg>summary span{font:13px var(--sans);color:var(--muted)}
+.xi{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font-size:13px;color:var(--ink-2);margin-top:6px}
 .empty{padding:22px 0;color:var(--muted)}
 .empty b{display:block;color:var(--ink);font-weight:600;margin-bottom:4px}
 .log{background:#0f1a15;color:#cfe3d6;border-radius:8px;padding:14px 16px;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace;min-height:92px;max-height:260px;overflow:auto;white-space:pre-wrap}
@@ -191,14 +198,11 @@ input:hover,select:hover{border-color:#b8bfb5}
 <!-- ============ ACCUEIL ============ -->
 <section class="page" id="p-accueil">
   <div class="head"><h1>Tableau de bord</h1><p id="home-sub">Vos données et vos modèles, disponibles même sans connexion.</p></div>
+  <div class="block" id="live-block"><h2>Matchs du jour</h2><p class="muted" id="live-sub"></p><div id="live-list"></div><div id="live-track"></div></div>
   <div class="block"><div class="figures" id="figs"></div></div>
   <div class="block">
     <h2>Ce que montrent les tests</h2>
     <div id="verdict"></div>
-  </div>
-  <div class="block">
-    <h2>Prochains matchs</h2>
-    <div id="upcoming"></div>
   </div>
   <div class="block">
     <h2>Données de cette application</h2>
@@ -352,10 +356,40 @@ loaders.accueil=async()=>{
       $('#verdict').innerHTML=`<div class="note"><b>Le marché prédit mieux que nos modèles.</b> Sur ${s.lineup.matchs.toLocaleString('fr-FR')} matchs de Premier League, les cotes des bookmakers sont plus précises que le modèle de buts, et ajouter les compositions n'améliore pas la prédiction. Ne misez pas d'argent réel sur ces seules prédictions.</div>
       <table><thead><tr><th>Modèle</th><th class="n">Erreur (log loss)</th><th class="n">Écart avec le marché</th></tr></thead><tbody>${m.map(x=>`<tr><td>${esc(x['modèle'])}</td><td class="n">${num(x.logloss,4)}</td><td class="n ${x.logloss-lo>0?'neg-t':''}">${x.logloss-lo>0?'+'+num(x.logloss-lo,4):'référence'}</td></tr>`).join('')}</tbody></table>`}
     else $('#verdict').innerHTML='<div class="empty"><b>Pas encore de résultats de test.</b>Lancez <code>python main_lineup.py</code> pour les produire.</div>';
-    $('#upcoming').innerHTML=s.upcoming.length?`<table><thead><tr><th>Coup d'envoi</th><th>Match</th><th>Formations</th></tr></thead><tbody>${s.upcoming.map(u=>`<tr><td>${esc((u.kickoff||'').replace('T',' ').slice(0,16))}</td><td>${esc(u.home)} – ${esc(u.away)}</td><td>${esc(u.hf||'')} ${u.af?'/ '+esc(u.af):''}</td></tr>`).join('')}</tbody></table>`
-      :'<div class="empty"><b>Aucun match à venir enregistré.</b>Les calendriers sont ajoutés par l’application sur ordinateur (sources en direct) au moment de fabriquer les données.</div>';
-    $('#lastlog').innerHTML=`<table><tbody><tr><td class="muted" style="width:210px">Résultats et cotes jusqu'au</td><td>${esc(fmtDate(s.newest))}</td></tr><tr><td class="muted">Données générées le</td><td>${esc(fmtDate(s.generated))}</td></tr></tbody></table><p class="muted" style="margin-top:8px">Pour de nouvelles données : mettez à jour l'application sur ordinateur puis republiez (LISEZMOI.md), et touchez « Rechercher de nouvelles données » dans Sources &amp; réglages.</p>`;
+    renderLive(s.live||{});
+    $('#lastlog').innerHTML=`<table><tbody><tr><td class="muted" style="width:210px">Résultats et cotes jusqu'au</td><td>${esc(fmtDate(s.newest))}</td></tr><tr><td class="muted">Données générées le</td><td>${esc(fmtDate(s.generated))}</td></tr></tbody></table><p class="muted" style="margin-top:8px">Les matchs, compositions et prédictions se mettent à jour automatiquement (toutes les 20 minutes, et chaque jour pour les modèles) quand le site est publié avec son planificateur. Touchez « Rechercher de nouvelles données » dans Sources &amp; réglages pour les récupérer tout de suite.</p>`;
   }catch(e){toast(e.message,1)}};
+
+/* ---------- matchs du jour (mise à jour automatique) ---------- */
+const hhmm=s=>{const d=new Date(s);return isNaN(d)?'':d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})};
+const dayLabel=s=>{const d=new Date(s);if(isNaN(d))return'';const t=new Date();const k=x=>x.toDateString();const y=new Date(t.getTime()+864e5);
+  return k(d)===k(t)?"aujourd'hui":k(d)===k(y)?'demain':d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})};
+function xiHtml(m){if(!m.hxi||!m.axi)return'';const col=x=>x.map(p=>`<div>${esc(p.player)}${p.pos?' <span class="muted">'+esc(p.pos)+'</span>':''}</div>`).join('');
+  return `<details style="margin-top:6px"><summary class="muted" style="cursor:pointer;font-size:13px">Voir les onze de départ</summary><div class="xi"><div><b>${esc(m.home)}</b>${col(m.hxi)}</div><div><b>${esc(m.away)}</b>${col(m.axi)}</div></div></details>`}
+function matchRow(m){
+  const st=m.status==='finished'?`<span class="badge">Terminé ${m.score?m.score[0]+' – '+m.score[1]:''}</span>`:m.status==='live'?`<span class="badge warn">En cours${m.score?' '+m.score[0]+' – '+m.score[1]:''}</span>`:`<span class="badge">${esc(dayLabel(m.kickoff))} ${esc(hhmm(m.kickoff))}</span>`;
+  const lu=m.lineup?`<span class="badge good">Composition publiée${m.hf?' · '+esc(m.hf)+(m.af?' / '+esc(m.af):''):''}</span>`:(m.status==='scheduled'?'<span class="badge warn">Composition attendue environ 1 h avant</span>':'');
+  let h=`<div class="mrow"><div class="mtop"><b>${esc(m.home)} – ${esc(m.away)}</b>${st}</div><div class="row" style="margin-top:4px">${lu}</div>`;
+  if(m.p){const [a,b,c]=m.p;h+=`<div class="mini" role="img" aria-label="Probabilités ${pct(a,0)}, ${pct(b,0)}, ${pct(c,0)}"><i style="width:${a*100}%;background:#2b6a4d"></i><i style="width:${b*100}%;background:#4f8a6b"></i><i style="width:${c*100}%;background:#3f5a70"></i></div>
+    <div class="mpr"><span>Domicile ${pct(a,0)}</span><span>Nul ${pct(b,0)}</span><span>Extérieur ${pct(c,0)}</span></div>`}
+  else h+=`<div class="muted" style="margin-top:6px;font-size:13px">Pas de prédiction (équipe ou championnat absent du modèle, ou match terminé avant la collecte).</div>`;
+  if(m.ref)h+=`<div class="muted" style="font-size:13px;margin-top:4px">Marché (${esc(m.ref.src)}, marge retirée) : ${m.ref.fair.map(x=>pct(x,0)).join(' · ')}</div>`;
+  if(m.flag)h+=`<div class="note" style="margin:8px 0 0;padding:8px 12px">Écart avec le marché : <b>${NAME[m.flag.outcome].toLowerCase()}</b> à ${num(m.flag.odds)} (${sgn(m.flag.edge*100)} % selon le modèle). À noter dans le suivi, pas à miser aveuglément.</div>`;
+  return h+xiHtml(m)+'</div>'}
+function renderLive(L){
+  const ms=L.matches||[];
+  $('#live-sub').textContent=L.updated?`Mise à jour automatique : ${new Date(L.updated).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}. Les prédictions utilisent les matchs passés ; la composition est enregistrée dès qu'elle est publiée.`:'Aucune mise à jour automatique reçue pour le moment.';
+  if(!ms.length){$('#live-list').innerHTML='<div class="empty"><b>Aucun match dans les prochaines 36 heures.</b>La liste se remplit toute seule quand le site se met à jour (voir LISEZMOI.md pour l\'activer).</div>';}
+  else{const by={};ms.forEach(m=>(by[m.league_name]=by[m.league_name]||[]).push(m));
+    $('#live-list').innerHTML=Object.entries(by).map(([k,v],i)=>`<details class="lg"${i<3?' open':''}><summary>${esc(k)}<span>${v.length} match${v.length>1?'s':''}</span></summary>${v.map(matchRow).join('')}</details>`).join('')}
+  const t=L.track;
+  $('#live-track').innerHTML=t&&t.matchs?`<h3 style="margin:16px 0 6px">Fiabilité mesurée</h3><table><tbody>
+    <tr><td class="muted">Matchs prédits puis terminés</td><td class="n">${t.matchs}</td></tr>
+    <tr><td class="muted">Erreur du modèle (log loss)</td><td class="n">${num(t.logloss_modele,3)}</td></tr>
+    ${t.logloss_marche!=null?`<tr><td class="muted">Sur les ${t.matchs_avec_marche} matchs avec cotes : modèle / marché</td><td class="n">${num(t.logloss_modele_memes_matchs,3)} / ${num(t.logloss_marche,3)}</td></tr>`:''}
+    ${t.paris_signales?`<tr><td class="muted">Écarts signalés : réussite et résultat aux cotes de référence</td><td class="n">${pct(t.reussite,0)} · ${sgn(t.roi_signales*100)} %</td></tr>`:''}</tbody></table>
+    <p class="muted" style="margin-top:8px">${t.matchs<100?'Trop peu de matchs pour conclure : ces chiffres bougent beaucoup. ':''}Plus l'erreur est basse, mieux c'est. Si le marché a la plus basse, c'est lui qu'il faut croire.</p>`:'<p class="muted" style="margin-top:12px">La fiabilité sera mesurée automatiquement quand les premiers matchs prédits seront terminés.</p>';
+}
 
 /* ---------- prédire ---------- */
 let LEAGUES=[];
