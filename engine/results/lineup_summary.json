@@ -1,0 +1,70 @@
+{
+ "matchs": 1896,
+ "modeles": [
+  {
+   "modèle": "Marché (cotes sans marge)",
+   "logloss": 0.9605963296437244,
+   "brier": 0.5706065817187482
+  },
+  {
+   "modèle": "Modèle de buts seul",
+   "logloss": 0.9815199517452532,
+   "brier": 0.5842271762564025
+  },
+  {
+   "modèle": "Buts + compositions",
+   "logloss": 0.9840382509579261,
+   "brier": 0.5856748364904089
+  }
+ ],
+ "coefficients": [
+  {
+   "saison": "2021-22",
+   "entrainement": 371,
+   "log_lam": 0.834,
+   "d_att_own": 0.157,
+   "d_def_opp": 0.748,
+   "const": 0.023
+  },
+  {
+   "saison": "2022-23",
+   "entrainement": 750,
+   "log_lam": 0.98,
+   "d_att_own": 0.09,
+   "d_def_opp": 0.358,
+   "const": -0.003
+  },
+  {
+   "saison": "2023-24",
+   "entrainement": 1128,
+   "log_lam": 0.941,
+   "d_att_own": 0.038,
+   "d_def_opp": 0.298,
+   "const": 0.021
+  },
+  {
+   "saison": "2024-25",
+   "entrainement": 1505,
+   "log_lam": 0.947,
+   "d_att_own": 0.032,
+   "d_def_opp": 0.296,
+   "const": 0.05
+  },
+  {
+   "saison": "2025-26",
+   "entrainement": 1882,
+   "log_lam": 0.927,
+   "d_att_own": 0.05,
+   "d_def_opp": 0.369,
+   "const": 0.046
+  },
+  {
+   "saison": "2026-27",
+   "entrainement": 2260,
+   "log_lam": 0.92,
+   "d_att_own": 0.066,
+   "d_def_opp": 0.268,
+   "const": 0.039
+  }
+ ]
+}

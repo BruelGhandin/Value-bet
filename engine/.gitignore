@@ -1,0 +1,4 @@
+data/store.db
+data/cache/
+data/settings.json
+__pycache__/
