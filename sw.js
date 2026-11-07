@@ -2,7 +2,7 @@
    - fichiers de l'application : servis depuis le cache, mis à jour en arrière-plan ;
    - data/snapshot.json : réseau d'abord (données fraîches), cache si hors ligne ;
    - requêtes vers d'autres sites (The Odds API) : jamais interceptées. */
-const VERSION = "20261106-123804";
+const VERSION = "20261107-112730";
 const CACHE = "valuebet-" + VERSION;
 const SHELL = ["./", "index.html", "local-api.js", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "data/snapshot.json"];
 
